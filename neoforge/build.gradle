@@ -1,73 +1,59 @@
 plugins {
-    id "com.gradleup.shadow" version "8.3.5"
+    id "net.neoforged.moddev"
 }
 
-architectury {
-    platformSetupLoomIde()
-    neoForge()
+base.archivesName = "${rootProject.archives_base_name}-mc${minecraft_version}-neoforge"
+
+sourceSets {
+    main {
+        java.setSrcDirs(["../common/src/main/java", "src/main/java"])
+        resources.setSrcDirs(["../common/src/main/resources", "src/main/resources"])
+    }
+    test.java.srcDir("../common/src/test/java")
 }
 
-repositories {
-    maven { url "https://maven.neoforged.net/releases/" }
-}
-
-loom {
-    accessWidenerPath = project(":common").loom.accessWidenerPath
-}
-
-configurations {
-    common
-    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
-    compileClasspath.extendsFrom common
-    runtimeClasspath.extendsFrom common
-    developmentNeoForge.extendsFrom common
+neoForge {
+    enable {
+        version = neoforge_version
+        // 26.x ships an unobfuscated development jar; avoid a needless
+        // decompile/recompile pipeline and keep CI deterministic.
+        disableRecompilation = true
+    }
+    mods {
+        caramelchat { sourceSet sourceSets.main }
+    }
+    runs {
+        client {
+            client()
+            def preference = System.getProperty("caramelchat.preferNativeWayland")
+            if (preference != null) {
+                jvmArgument "-Dcaramelchat.preferNativeWayland=${preference}"
+            }
+        }
+    }
 }
 
 dependencies {
-    neoForge "net.neoforged:neoforge:${rootProject.neoforge_version}"
+    testImplementation "org.junit.jupiter:junit-jupiter:5.12.1"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.12.1"
+}
 
-    common(project(path: ":common", configuration: "namedElements")) { transitive false }
-    shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive false }
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
 }
 
 processResources {
     inputs.property "version", project.version
-
-    filesMatching("META-INF/neoforge.mods.toml") {
-        expand "version": project.version
-    }
+    filesMatching("META-INF/neoforge.mods.toml") { expand "version": project.version }
 }
 
-shadowJar {
-    exclude "fabric.mod.json"
 
-    configurations = [project.configurations.shadowCommon]
-    archiveClassifier.set("dev-shadow")
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = "UTF-8"
+    options.release = 25
 }
 
-remapJar {
-    atAccessWideners.add(loom.accessWidenerPath.get().asFile.name)
-    inputFile.set shadowJar.archiveFile
-    dependsOn shadowJar
-    archiveClassifier.set(null)
-}
-
-jar {
-    archiveClassifier.set("dev")
-}
-
-sourcesJar {
-    def commonSources = project(":common").sourcesJar
-    dependsOn commonSources
-    from commonSources.archiveFile.map { zipTree(it) }
-}
-
-components.java {
-    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
-        skip()
-    }
-}
-
-modrinth {
-    loaders = ["neoforge"]
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+    withSourcesJar()
 }

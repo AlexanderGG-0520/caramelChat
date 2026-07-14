@@ -1,20 +1,9 @@
 {
     "package": "moe.caramel.chat.mixin",
-    "compatibilityLevel": "JAVA_17",
-    "plugin": "moe.caramel.chat.plugin.MixinPlugin",
+    "compatibilityLevel": "JAVA_25",
     "minVersion": "0.8.5",
     "required": true,
     "client": [
-        "MixinChatScreen",
-        "MixinCreativeModeInventoryScreen",
-        "MixinEditBox",
-        "MixinMinecraft",
-        "MixinMultiLineEditBox",
-        "MixinRecipeBookComponent",
-        "MixinSelectWorldScreen",
-        "MixinSignEditScreen",
-        "emi.MixinPluginEmiPort",
-        "emi.MixinPluginEmiSearchWidget",
-        "xaeromap.MixinPluginXaeroMapWayPoint"
+        "MixinGLX"
     ]
 }

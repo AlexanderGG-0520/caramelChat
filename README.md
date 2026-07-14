@@ -1,80 +1,64 @@
 <img src="common/src/main/resources/icon.png" width="96" alt="caramelChat Icon"/>
 
 # caramelChat
-Provides an enhanced IME input experience in Minecraft.
 
----
+Selects Minecraft 26.2's native Wayland input path on supported Linux Wayland sessions.
 
-## 📕 Introduction
-caramelChat is modern chat mod inspired by the input method of [CocoaInput](https://github.com/Axeryok/CocoaInput).
+## What it does
 
-## 💻 Compatibility
-Currently, caramelChat uses [CocoaInput-lib](https://github.com/Korea-Minecraft-Forum/CocoaInput-lib).
-It must be the same as the OS compatibility of CocoaInput.
+Minecraft 26.2 and its bundled LWJGL 3.4.1 provide the text-input focus,
+pre-edit rendering, candidate rectangle, and committed-text pipeline for
+vanilla widgets. When both X11 and Wayland are available, Minecraft normally
+forces GLFW's X11 platform. caramelChat narrowly replaces that one platform
+hint with Wayland when a usable Linux Wayland session is detected.
 
-We plan to use our Native library in caramelChat v2.0.
-Compatibility will gradually improve.
+The mod does not ship a native IME library, use JNA, replace GLFW callbacks,
+or implement a second composition renderer. Minecraft and LWJGL remain
+responsible for IME focus, pre-edit display, candidates, and committed text.
 
-|             OS              |         Compatibility         |
-|:---------------------------:|:-----------------------------:|
-|    **Windows** (x86_64)     |         🟢 Compatible         |
-|     **Windows** (arm64)     |        🔴 Incompatible        |
-|      **macOS** (Intel)      |         🟢 Compatible         |
-|  **macOS** (Apple Silicon)  |         🟢 Compatible         |
-|   **Linux X11** (x86_64)    | 🟡 Incompatible in some cases |
-|    **Linux X11** (arm64)    |        🔴 Incompatible        |
-| **Linux Wayland** (x86_64)  | 🟡 Incompatible in some cases |
-|  **Linux Wayland** (arm64)  |        🔴 Incompatible        |
+## Tested build compatibility
 
-Below is the ModLoader compatibility.
+| Component | Tested version |
+| --- | --- |
+| Minecraft | 26.2 |
+| Java | 25 |
+| Fabric Loader | 0.19.3 |
+| NeoForge | 26.2.0.13-beta |
+| LWJGL | 3.4.1 (bundled by Minecraft) |
 
-|    Platform    |    Support    |
-|:--------------:|:-------------:|
-| Fabric / Quilt | 🟢 Compatible |
-|     Forge      | 🟢 Compatible |
-|    NeoForge    | 🟢 Compatible |
+Fabric and NeoForge build for exactly Minecraft 26.2. Untested future 26.x
+versions are not implied to work. Legacy Forge, Quilt, historical native
+libraries, and historical Windows/macOS/X11 backends are not active in this
+build.
 
-## 🛠️ Troubleshooting (macOS 14.0+)
-If you are using macOS Sonoma or later versions, you may experience the following issue:
-- Some characters are skipped when typing very quickly.
-- The client crashes when a system key is pressed (e.g., input source switch).
+## Linux Wayland behavior
 
-Most of the causes are due to the Input Tooltip added in Sonoma. However, Apple has not provided an API to disable it.
+On CachyOS/Arch Linux with Hyprland, Fcitx5, and Mozc, native GLFW Wayland was
+runtime-tested: Japanese composition and committed chat text worked through
+Minecraft's own pipeline. XWayland remains available as a safe launch fallback;
+that fallback was verified to launch, but this port makes no Japanese-IME claim
+for it.
 
-![macOS Sonoma Indicator](https://github.com/LemonCaramel/caramelChat/assets/45729082/e1d34917-1892-4cb6-aa3f-38fdab58fad9)
+Set one JVM property before launching Minecraft to control platform selection:
 
-
-You can disable the Input Tooltip system-wide through the following guide.
-
-Open the Terminal and enter the following command:
-```Bash
-sudo mkdir -p /Library/Preferences/FeatureFlags/Domain
-sudo /usr/libexec/PlistBuddy -c "Add 'redesigned_text_cursor:Enabled' bool false" /Library/Preferences/FeatureFlags/Domain/UIKit.plist
+```text
+-Dcaramelchat.preferNativeWayland=auto
 ```
-And then, reboot your Macintosh. This will return you to the input environment from before Sonoma.
 
-## 🛠️ Troubleshooting (Linux Wayland)
+`auto` (the default) selects Wayland only on Linux when `WAYLAND_DISPLAY` is
+nonblank and GLFW reports Wayland support. `true` requests Wayland whenever it
+is supported. `false` preserves Minecraft's normal X11/XWayland choice.
 
-In some Linux distributions that use the Wayland protocol, crashes may occur.
-This happens because Xwayland is present in the system, causing GLFW to attempt to run based on X11.
+No additional desktop toolkit, JNA installation, or native caramelChat binary
+is required. If Minecraft's native Wayland pipeline fails on a different
+compositor or IME, use `false` as a fallback and report the Minecraft, Java,
+compositor, actual GLFW platform, Fcitx5, and Mozc versions.
 
-Fortunately, there are third-party mods available to address this issue.
+## Contributing
 
-**WayGL:** [Modrinth](https://modrinth.com/mod/waygl), [Github](https://github.com/wired-tomato/WayGL)
+All contributions are welcome. The active build instructions require Java 25;
+run `./gradlew --no-daemon build` from a shell with that JDK selected.
 
-## 🛠️ Troubleshooting (Linux Fcitx5)
+## License
 
-Fcitx5 may not work without using the "On The Spot" style.
-
-1. Assuming your configuration program is `fcitx5-config-qt`, Head to `Fcitx Configuration -> Addons`, find `X Input Method Frontend` and click the cog button in its row.
-2. Enable the `Use On The Spot Style (Needs restarting)` option then reboot.
-3. It should be working now.
-
-## 🚀️ Contributing
-All contributions are welcome regardless of Native or Java.
-
-## 📜 License
-caramelChat is licensed under GNU LGPLv3, a free and open-source license. For more information, please see the [license file](LICENSE).
-
-When submitting pull requests to this repository, it is assumed that you are licensing your contribution under the
-GNU LGPLv3, unless you state otherwise.
+caramelChat is licensed under GNU LGPLv3. See [LICENSE](LICENSE).

@@ -36,21 +36,16 @@ logoFile="icon.png" #optional
 #credits="" #optional
 
 # A text field displayed in the mod UI
-authors="LemonCaramel, Axeryok (Native Library)" #optional
+authors="LemonCaramel" #optional
 
 # The description text for the mod (multi line!) (#mandatory)
 description='''
-Provides an enhanced IME input experience in Minecraft.
+Selects Minecraft 26.2's native Wayland input path on supported Linux Wayland sessions.
 '''
 
 # The [[mixins]] block allows you to declare your mixin config to FML so that it gets loaded.
 [[mixins]]
 config="caramelchat.mixins.json"
-
-# The [[accessTransformers]] block allows you to declare where your AT file is.
-# If this block is omitted, a fallback attempt will be made to load an AT from META-INF/accesstransformer.cfg
-#[[accessTransformers]]
-#file="META-INF/accesstransformer.cfg"
 
 # The coremods config file path is not configurable and is always loaded from META-INF/coremods.json
 
@@ -58,14 +53,14 @@ config="caramelchat.mixins.json"
 [[dependencies.caramelchat]]
     modId="neoforge"
     type="required"
-    versionRange="[21.9,)"
+    versionRange="[26.2.0.13-beta,)"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.caramelchat]]
     modId="minecraft"
     type="required"
-    versionRange="[1.21.9,)"
+    versionRange="[26.2,26.3)"
     ordering="NONE"
     side="CLIENT"
 

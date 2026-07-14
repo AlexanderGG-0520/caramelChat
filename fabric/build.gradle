@@ -1,83 +1,51 @@
 plugins {
-    id "com.gradleup.shadow" version "8.3.5"
+    id "net.fabricmc.fabric-loom"
 }
 
-architectury {
-    platformSetupLoomIde()
-    fabric()
+base.archivesName = "${rootProject.archives_base_name}-mc${minecraft_version}-fabric"
+
+sourceSets {
+    main {
+        java.setSrcDirs(["../common/src/main/java", "src/main/java"])
+        resources.setSrcDirs(["../common/src/main/resources", "src/main/resources"])
+    }
+    test.java.srcDir("../common/src/test/java")
 }
 
 loom {
-    accessWidenerPath = project(":common").loom.accessWidenerPath
-
-    // for Debug
     runs {
         client {
-            vmArgs "-Dmixin.debug.export=true"
+            def preference = System.getProperty("caramelchat.preferNativeWayland")
+            if (preference != null) {
+                vmArg "-Dcaramelchat.preferNativeWayland=${preference}"
+            }
         }
     }
 }
 
-configurations {
-    common
-    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
-    compileClasspath.extendsFrom common
-    runtimeClasspath.extendsFrom common
-    developmentFabric.extendsFrom common
-}
-
 dependencies {
-    modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
-
-    common(project(path: ":common", configuration: "namedElements")) { transitive false }
-    shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    testImplementation "org.junit.jupiter:junit-jupiter:5.12.1"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.12.1"
 }
 
-task copyCommonResources(type: Copy) {
-    from fileTree(project(":common").file("src/main/resources"))
-    into file("build/resources/main")
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
 }
 
 processResources {
     inputs.property "version", project.version
-
-    filesMatching("fabric.mod.json") {
-        expand "version": project.version
-    }
+    filesMatching("fabric.mod.json") { expand "version": project.version }
 }
 
-shadowJar {
-    configurations = [project.configurations.shadowCommon]
-    archiveClassifier.set("dev-shadow")
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = "UTF-8"
+    options.release = 25
 }
 
-remapJar {
-    injectAccessWidener = true
-    inputFile.set shadowJar.archiveFile
-    dependsOn shadowJar
-    archiveClassifier.set(null)
-}
-
-jar {
-    archiveClassifier.set("dev")
-}
-
-runClient {
-    dependsOn(copyCommonResources)
-}
-
-sourcesJar {
-    def commonSources = project(":common").sourcesJar
-    dependsOn commonSources
-    from commonSources.archiveFile.map { zipTree(it) }
-}
-
-components.java {
-    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
-        skip()
-    }
-}
-
-modrinth {
-    loaders = ["fabric", "quilt"]
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+    withSourcesJar()
 }

@@ -32,6 +32,16 @@ public final class ModLogger {
     }
 
     /**
+     * Prints a warning message.
+     *
+     * @param msg log format
+     * @param data other data
+     */
+    public static void warn(final String msg, final Object... data) {
+        LOGGER.warn(msg, data);
+    }
+
+    /**
      * Prints a debug message.
      *
      * @param msg log format
