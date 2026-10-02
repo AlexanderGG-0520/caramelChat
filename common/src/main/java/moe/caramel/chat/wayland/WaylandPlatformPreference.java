@@ -6,13 +6,13 @@ public final class WaylandPlatformPreference {
     private WaylandPlatformPreference() {}
 
     public static boolean shouldPreferWayland(String os, String display, String preference, boolean supported) {
-        if (!supported) return false;
+        if (!isLinux(os) || !supported) return false;
         String mode = preference == null ? "auto" : preference.toLowerCase(Locale.ROOT);
         return switch (mode) {
             case "true" -> true;
             case "false" -> false;
-            case "auto" -> isLinux(os) && display != null && !display.isBlank();
-            default -> isLinux(os) && display != null && !display.isBlank();
+            case "auto" -> display != null && !display.isBlank();
+            default -> display != null && !display.isBlank();
         };
     }
 
@@ -23,7 +23,7 @@ public final class WaylandPlatformPreference {
         };
     }
 
-    private static boolean isLinux(String os) {
+    public static boolean isLinux(String os) {
         return os != null && os.toLowerCase(Locale.ROOT).contains("linux");
     }
 }

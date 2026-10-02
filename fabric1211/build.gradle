@@ -1,0 +1,59 @@
+plugins {
+    id "net.fabricmc.fabric-loom-remap"
+}
+
+base.archivesName = "${rootProject.archives_base_name}-mc1.21.1-fabric"
+
+sourceSets {
+    main {
+        java.setSrcDirs(["src/main/java", "../common/src/main/java"])
+        java.include("moe/caramel/chat/mixin1211/**", "moe/caramel/chat/wayland/**")
+        resources.setSrcDirs(["../common/src/main/resources", "src/main/resources"])
+    }
+    test {
+        java.setSrcDirs(["../common/src/test/java"])
+    }
+}
+
+loom {
+    mixin {
+        useLegacyMixinAp = true
+        defaultRefmapName = "caramelchat1211.refmap.json"
+    }
+    runs {
+        client {
+            def preference = System.getProperty("caramelchat.preferNativeWayland")
+            if (preference != null) {
+                vmArg "-Dcaramelchat.preferNativeWayland=${preference}"
+            }
+        }
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:1.21.1"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:0.16.5"
+    testImplementation "org.junit.jupiter:junit-jupiter:5.12.1"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.12.1"
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}
+
+processResources {
+    inputs.property "version", project.version
+    exclude "caramelchat.mixins.json"
+    filesMatching("fabric.mod.json") { expand "version": project.version }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = "UTF-8"
+    options.release = 21
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+    withSourcesJar()
+}

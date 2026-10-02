@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "caramelchat",
+  "version": "${version}",
+  "name": "caramelChat",
+  "description": "Selects GLFW's native Wayland platform on supported Linux sessions in Minecraft 1.21.1.",
+  "authors": ["LemonCaramel"],
+  "contact": {
+    "homepage": "https://caramel.moe/",
+    "sources": "https://github.com/LemonCaramel/caramelChat",
+    "issues": "https://github.com/LemonCaramel/caramelChat/issues"
+  },
+  "license": "GNU LGPL 3.0",
+  "icon": "icon.png",
+  "environment": "client",
+  "mixins": ["caramelchat1211.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.16.5",
+    "minecraft": "1.21.1",
+    "java": ">=21"
+  },
+  "breaks": {
+    "lunar": "*",
+    "feather": "*"
+  }
+}

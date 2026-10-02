@@ -1,0 +1,10 @@
+{
+  "package": "moe.caramel.chat.mixin1211",
+  "refmap": "caramelchat1211.refmap.json",
+  "compatibilityLevel": "JAVA_21",
+  "minVersion": "0.8.5",
+  "required": true,
+  "client": [
+    "MixinGLX1211"
+  ]
+}

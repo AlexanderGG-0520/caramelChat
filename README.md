@@ -2,31 +2,31 @@
 
 # caramelChat
 
-Selects Minecraft 26.2's native Wayland input path on supported Linux Wayland sessions.
+Selects Minecraft's native Wayland input path on supported Linux Wayland sessions.
 
 ## What it does
 
-Minecraft 26.2 and its bundled LWJGL 3.4.1 provide the text-input focus,
-pre-edit rendering, candidate rectangle, and committed-text pipeline for
-vanilla widgets. When both X11 and Wayland are available, Minecraft normally
-forces GLFW's X11 platform. caramelChat narrowly replaces that one platform
-hint with Wayland when a usable Linux Wayland session is detected.
+Minecraft 26.2 provides a native Wayland text-input pipeline for vanilla
+widgets. On 1.21.1, this mod only selects GLFW's native platform; it does not
+add that newer text-input pipeline. When both X11 and Wayland are available,
+Minecraft normally uses X11. caramelChat selects GLFW's platform immediately
+before Minecraft initializes GLFW when a usable Linux Wayland session is
+detected. Each Minecraft version has a separate Fabric module because 1.21.1
+uses an obfuscated runtime and a different GLFW initialization flow.
 
 The mod does not ship a native IME library, use JNA, replace GLFW callbacks,
 or implement a second composition renderer. Minecraft and LWJGL remain
 responsible for IME focus, pre-edit display, candidates, and committed text.
 
-## Tested build compatibility
+## Build compatibility
 
-| Component | Tested version |
-| --- | --- |
-| Minecraft | 26.2 |
-| Java | 25 |
-| Fabric Loader | 0.19.3 |
-| NeoForge | 26.2.0.13-beta |
-| LWJGL | 3.4.1 (bundled by Minecraft) |
+| Target | Minecraft | Java | Loader | LWJGL artifact / GLFW API |
+| --- | --- | --- | --- | --- |
+| Fabric | 1.21.1 | 21 | Fabric Loader 0.16.5+ | 3.3.3 / 3.4.0 |
+| Fabric | 26.2 | 25 | Fabric Loader 0.19.3+ | 3.4.1 / 3.4.1 |
+| NeoForge | 26.2 | 25 | NeoForge 26.2.0.13-beta | 3.4.1 / 3.4.1 |
 
-Fabric and NeoForge build for exactly Minecraft 26.2. Untested future 26.x
+Each module targets only the Minecraft version listed above. Untested game
 versions are not implied to work. Legacy Forge, Quilt, historical native
 libraries, and historical Windows/macOS/X11 backends are not active in this
 build.
@@ -46,8 +46,12 @@ Set one JVM property before launching Minecraft to control platform selection:
 ```
 
 `auto` (the default) selects Wayland only on Linux when `WAYLAND_DISPLAY` is
-nonblank and GLFW reports Wayland support. `true` requests Wayland whenever it
-is supported. `false` preserves Minecraft's normal X11/XWayland choice.
+nonblank and GLFW reports Wayland support. On Linux, `true` explicitly selects
+the Wayland backend when it is included in the GLFW binary; this support check
+does not test whether the current session's compositor accepts a Wayland
+connection. If the backend cannot connect, GLFW initialization can fail.
+`false` explicitly selects X11 on 1.21.1 and retains Minecraft's X11/XWayland
+hint on 26.2.
 
 No additional desktop toolkit, JNA installation, or native caramelChat binary
 is required. If Minecraft's native Wayland pipeline fails on a different
@@ -56,8 +60,8 @@ compositor, actual GLFW platform, Fcitx5, and Mozc versions.
 
 ## Contributing
 
-All contributions are welcome. The active build instructions require Java 25;
-run `./gradlew --no-daemon build` from a shell with that JDK selected.
+All contributions are welcome. Run `./gradlew --no-daemon clean build` with
+Java 25 selected; the 1.21.1 module compiles with Java 21 bytecode.
 
 ## License
 

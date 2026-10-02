@@ -34,8 +34,9 @@ class WaylandPlatformPreferenceTest {
     }
 
     @Test
-    void explicitTrueOverridesAutoPlatformChecks() {
-        assertTrue(WaylandPlatformPreference.shouldPreferWayland("Windows 11", null, "true", true));
+    void explicitTrueStillRequiresLinux() {
+        assertFalse(WaylandPlatformPreference.shouldPreferWayland("Windows 11", null, "true", true));
+        assertFalse(WaylandPlatformPreference.shouldPreferWayland("Mac OS X", null, "true", true));
         assertFalse(WaylandPlatformPreference.shouldPreferWayland("Windows 11", "wayland-1", "auto", true));
     }
 

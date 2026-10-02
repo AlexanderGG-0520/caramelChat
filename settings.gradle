@@ -8,4 +8,4 @@ pluginManagement {
 
 // The former Architectury common project is consumed as a shared source tree.
 // Forge remains legacy 1.21.x code and is intentionally not part of 26.2.
-include("fabric", "neoforge")
+include("fabric", "fabric1211", "neoforge")
